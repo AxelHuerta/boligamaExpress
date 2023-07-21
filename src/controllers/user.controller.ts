@@ -11,7 +11,7 @@ export const registerUser = async (req: Request, res: Response) => {
     // check if the user exists
     const userFound = await User.findOne({ username: body.username });
     if (userFound)
-      return res.status(301).json({ message: "Te user already exists" });
+      return res.status(301).json({ message: "The user already exists" });
 
     // encriptation
     const salt = await bcrypt.genSalt();
