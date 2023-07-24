@@ -1,6 +1,16 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/user.model";
+import jwt from "jsonwebtoken";
+import config from "../config";
+
+// authentication
+const signToken = (_id: string) => {
+  return jwt.sign({ _id }, config.SECRET, {
+    // expiration time
+    expiresIn: 60 * 60 * 24,
+  });
+};
 
 // endpoints
 
@@ -27,5 +37,38 @@ export const registerUser = async (req: Request, res: Response) => {
     res.json(savedUser);
   } catch (err) {
     console.log("Register error", err);
+  }
+};
+
+// login user
+export const loginUser = async (req: Request, res: Response) => {
+  const { body } = req;
+  try {
+    const userFound = await User.findOne({ username: body.username });
+    if (!userFound) {
+      res.status(403).send("User or password incorrect");
+    } else {
+      // compare password
+      const isMatch = await bcrypt.compare(body.password, userFound.password);
+      if (isMatch) {
+        const token = signToken(userFound._id.toString());
+        const id = userFound._id;
+        const user = { username: userFound.username };
+        const approvedUEAs = userFound.approvedUEAs;
+        const credits = userFound.credits;
+
+        // NOTE: Al parecer no es necesario devolver el estado
+        res.json({
+          token,
+          user,
+          approvedUEAs,
+          credits,
+        });
+      } else {
+        res.status(403).send("User or password incorrect");
+      }
+    }
+  } catch (err) {
+    res.status(500).send(err);
   }
 };
