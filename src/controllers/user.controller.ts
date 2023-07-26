@@ -72,3 +72,21 @@ export const loginUser = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
+
+// approve UEA
+export const approvedUEAs = async (req: Request, res: Response) => {
+  const { body } = req;
+  const userFound = await User.findOne({ username: body.username });
+
+  if (!userFound) {
+    console.log("not found user");
+    // NOTE: json is necesary?
+    // WARNING: is this code correct?
+    return res.status(404).json();
+  }
+
+  userFound.approvedUEAs = body.approvedUEAs;
+  console.log("user: ", userFound);
+  userFound.save();
+  res.sendStatus(204);
+};
