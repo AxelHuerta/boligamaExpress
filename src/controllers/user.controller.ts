@@ -86,6 +86,8 @@ export const approvedUEAs = async (req: Request, res: Response) => {
   }
 
   userFound.approvedUEAs = body.approvedUEAs;
+  userFound.credits = body.credits;
+
   console.log("user: ", userFound);
   userFound.save();
   res.sendStatus(204);
